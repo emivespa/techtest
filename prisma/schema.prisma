@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url = env("DATABASE_URL")
+}
+
+model Sale {
+  id         String    @default(cuid()) @id
+  createdAt  DateTime  @default(now())
+
+  date          DateTime
+  offerId       Int
+  priceInCents  Int
+  sku           String
+  units         Int
+
+  @@index([date, sku])
+}
+
+model DailySalesReport {
+  id         String    @default(cuid()) @id
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  date               DateTime
+  sales              Int
+  sku                String
+  totalPriceInCents  Int
+  totalUnits         Int
+
+  @@index([date, sku])
+
+  // Composite uniqueness contstraint, only on report per sku for each day:
+  // Also, needed to upsert.
+  @@unique([date, sku])
+}
